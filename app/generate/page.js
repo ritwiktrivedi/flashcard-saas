@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { collection, doc, getDoc } from "firebase/firestore";
+import { db } from "../../firebase.js";
 import {
   Container,
   TextField,
@@ -66,27 +68,35 @@ export default function Generate() {
     }
 
     try {
+      console.log("Starting saveFlashcards");
       const userDocRef = doc(collection(db, "users"), user.id);
+      console.log("userDocRef:", userDocRef);
       const userDocSnap = await getDoc(userDocRef);
+      console.log("userDocSnap:", userDocSnap);
 
       const batch = writeBatch(db);
 
       if (userDocSnap.exists()) {
         const userData = userDocSnap.data();
+        console.log("userData:", userData);
         const updatedSets = [
           ...(userData.flashcardSets || []),
           { name: setName },
         ];
+        console.log("updatedSets:", updatedSets);
         batch.update(userDocRef, { flashcardSets: updatedSets });
       } else {
+        console.log("No user doc exists, creating one");
         batch.set(userDocRef, { flashcardSets: [{ name: setName }] });
       }
 
-      const setDocRef = doc(collection(userDocRef, "flashcardSets"), setName);
-      batch.set(setDocRef, { flashcards });
+      // const setDocRef = doc(collection(userDocRef, "flashcardSets"), setName);
+      // console.log("setDocRef:", setDocRef);
+      // batch.set(setDocRef, { flashcards });
 
       await batch.commit();
 
+      console.log("Finished saveFlashcards");
       alert("Flashcards saved successfully!");
       handleCloseDialog();
       setSetName("");
@@ -95,7 +105,6 @@ export default function Generate() {
       alert("An error occurred while saving flashcards. Please try again.");
     }
   };
-
   return (
     <Container maxWidth="md" sx={{ bgcolor: "#f5f5f5", p: 4 }}>
       <Box sx={{ my: 4 }}>
