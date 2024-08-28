@@ -8,6 +8,7 @@ You should return in the following JSON format:
 {
   "flashcards":[
     {
+      "id": "id of the card",
       "front": "Front of the card",
       "back": "Back of the card"
     }

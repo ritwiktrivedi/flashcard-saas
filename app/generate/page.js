@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { collection, doc, getDoc } from "firebase/firestore";
+import { collection, doc, getDoc, writeBatch } from "firebase/firestore";
 import { db } from "../../firebase.js";
+import { useUser } from "@clerk/nextjs";
 import {
   Container,
   TextField,
@@ -28,6 +29,7 @@ import {
 } from "@mui/material";
 
 export default function Generate() {
+  const { isSignedIn, user } = useUser();
   const [text, setText] = useState("");
   const [flashcards, setFlashcards] = useState([]);
   const [setName, setSetName] = useState("");
@@ -62,6 +64,10 @@ export default function Generate() {
   };
 
   const saveFlashcards = async () => {
+    if (!user || !user.id) {
+      alert("Please sign in to save flashcards.");
+      return;
+    }
     if (!setName.trim()) {
       alert("Please enter a name for your flashcard set.");
       return;
@@ -90,9 +96,9 @@ export default function Generate() {
         batch.set(userDocRef, { flashcardSets: [{ name: setName }] });
       }
 
-      // const setDocRef = doc(collection(userDocRef, "flashcardSets"), setName);
-      // console.log("setDocRef:", setDocRef);
-      // batch.set(setDocRef, { flashcards });
+      const setDocRef = doc(collection(userDocRef, "flashcardSets"), setName);
+      console.log("setDocRef:", setDocRef);
+      batch.set(setDocRef, { flashcards });
 
       await batch.commit();
 
@@ -106,7 +112,7 @@ export default function Generate() {
     }
   };
   return (
-    <Container maxWidth="md" sx={{ bgcolor: "#f5f5f5", p: 4 }}>
+    <Container maxWidth="md" sx={{ p: 4 }}>
       <Box sx={{ my: 4 }}>
         <Typography variant="h4" component="h1" gutterBottom>
           Generate Flashcards

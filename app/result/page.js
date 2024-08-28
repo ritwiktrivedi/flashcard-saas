@@ -1,3 +1,16 @@
+"use client";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { CircularProgress, Container, Typography } from "@mui/material";
+
+// const getStripe = () => {
+//   if (!stripePromise) {
+//     stripePromise = loadStripe(
+//       process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || ""
+//     );
+//   }
+// };
+
 const ResultPage = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
